@@ -19,6 +19,7 @@ class Question(Base):
 
 
 class Inteverview(Base):
+    __tablename__ = "interview"
     id = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
     account = Column(BigInteger, ForeignKey("account.id"))
     created_at = Column(DateTime)
@@ -28,7 +29,8 @@ class Inteverview(Base):
     interview_account = relationship("Account", backref="interview_account")
 
 
-class InterviewQuestion(Base):
+class IQ(Base):
+    __tablename__ = "interview_question"
     id = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
     interview = Column(BigInteger, ForeignKey("interview.id"))
     question = Column(BigInteger, ForeignKey("question.id"))
@@ -40,5 +42,5 @@ class InterviewQuestion(Base):
     additional_answer_2 = Column(String)
     additional_question_3 = Column(String)
     additional_answer_3 = Column(String)
-    interview_model = relationship("Interview", backref="interview_model")
+    # interview_model = relationship("Interview", backref="interview_model")
     question_model = relationship("Question", backref="question_model")
