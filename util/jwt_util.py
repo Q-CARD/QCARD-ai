@@ -2,8 +2,6 @@ import jwt
 import os
 from dotenv import load_dotenv
 from fastapi import HTTPException
-from sqlalchemy.orm import Session
-from crud import find_account_by_email
 import base64
 
 
