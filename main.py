@@ -82,7 +82,8 @@ async def answer_interview(question_id: int, file: UploadFile, Authorization: st
     gpt_additional = gpt_util.get_gpt_questions(question=question, answer=answer)
 
     # 전체 응답 저장
-    crud.update_interview_question(db=db, iq_id=question_id, answer=answer, gpt_answer=gpt_answer, gpt_additional=gpt_additional)
+    crud.update_interview_question(db=db, iq_id=question_id, answer=answer, gpt_answer=gpt_answer,
+                                   gpt_additional=gpt_additional)
 
     return {
         "id": question_id,
@@ -91,5 +92,8 @@ async def answer_interview(question_id: int, file: UploadFile, Authorization: st
 
 
 @app.get("/interview/{interview_id}")
-async def get_interview_result():
-    return ""
+async def get_interview_result(interview_id: int, Authorization: str | None = Header(default=None),
+                               db: Session = Depends(get_db)):
+    # 계정 유효성 검증
+    account = crud.find_account_by_email(db=db, email=jwt_util.decode_jwt(access_token=Authorization))
+    return list(crud.find_interview(db=db, interview_id=interview_id))

@@ -97,3 +97,9 @@ def update_interview_question(db: Session, iq_id: int, answer: str, gpt_answer: 
         "additional_question_3": gpt_additional['question_3']
     })
     db.commit()
+
+
+def find_interview(db: Session, interview_id: int):
+    return db.query(InterviewQuestion).options(
+        joinedload(InterviewQuestion.question_model)).filter(
+        InterviewQuestion.interview == interview_id)
