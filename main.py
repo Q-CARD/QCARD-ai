@@ -4,7 +4,7 @@ import shutil
 from fastapi import FastAPI, Depends, Header, UploadFile
 from starlette.middleware.cors import CORSMiddleware
 import database
-from scheme import InterviewStartReq
+from scheme import InterviewStartReq, AdditionalInterviewReq
 from sqlalchemy.orm import Session
 from util import jwt_util, gpt_util, whisper_util
 import crud
@@ -97,3 +97,19 @@ async def get_interview_result(interview_id: int, Authorization: str | None = He
     # 계정 유효성 검증
     account = crud.find_account_by_email(db=db, email=jwt_util.decode_jwt(access_token=Authorization))
     return list(crud.find_interview(db=db, interview_id=interview_id))
+
+
+@app.put("/interview/additional")
+async def answer_interview(req: AdditionalInterviewReq, Authorization: str | None = Header(default=None),
+                           db: Session = Depends(get_db)):
+    crud.update_interview_question_additional_answer(
+        db=db,
+        sequence=req.sequence,
+        question_id=req.question_id,
+        answer=req.answer
+    )
+    return {
+        "id": req.question_id,
+        "sequence": req.sequence,
+        "message": "성공적으로 저장됨."
+    }

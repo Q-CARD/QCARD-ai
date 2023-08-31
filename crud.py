@@ -89,7 +89,7 @@ def find_question_by_interview_question(db: Session, interview_question_id: int)
 
 def update_interview_question(db: Session, iq_id: int, answer: str, gpt_answer: str, gpt_additional: str):
     gpt_additional = json.loads(gpt_additional.replace("'", "\""))
-    a = db.query(InterviewQuestion).filter_by(id=iq_id).update({
+    db.query(InterviewQuestion).filter_by(id=iq_id).update({
         "answer": answer,
         "gpt_answer": gpt_answer,
         "additional_question_1": gpt_additional['question_1'],
@@ -103,3 +103,17 @@ def find_interview(db: Session, interview_id: int):
     return db.query(InterviewQuestion).options(
         joinedload(InterviewQuestion.question_model)).filter(
         InterviewQuestion.interview == interview_id)
+
+
+def update_interview_question_additional_answer(db: Session, sequence: int, question_id: int, answer: str):
+    target = ""
+    if sequence == 1:
+        target = "additional_answer_1"
+    elif sequence == 2:
+        target = "additional_answer_2"
+    elif sequence == 3:
+        target = "additional_answer_3"
+    db.query(InterviewQuestion).filter_by(id=question_id).update({
+        target: answer
+    })
+    db.commit()
