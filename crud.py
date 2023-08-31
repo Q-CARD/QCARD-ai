@@ -1,4 +1,5 @@
 import datetime
+import json
 
 from sqlalchemy import or_
 
@@ -20,6 +21,10 @@ def find_account_by_email(db: Session, email):
 def find_all_question(db: Session):
     db_questions = db.query(Question).all()
     return random.sample(db_questions, 10)
+
+
+def find_question_by_id(db: Session, question_id: int):
+    return db.query(Question).get(question_id)
 
 
 def find_question_by_categories(db: Session, categories: list):
@@ -65,6 +70,32 @@ def create_interview(db: Session, categories: list, account: Account, questions:
 def find_interview_questions(db: Session, interview_questions: list):
     res = []
     for i in range(len(interview_questions)):
-        db_interview_question = db.query(InterviewQuestion).options(joinedload(InterviewQuestion.question_model)).filter(InterviewQuestion.question == interview_questions[i].question)
+        db_interview_question = db.query(InterviewQuestion).options(
+            joinedload(InterviewQuestion.question_model)).filter(
+            InterviewQuestion.question == interview_questions[i].question)
         res.append(list(db_interview_question)[0])
     return res
+
+
+def find_question_by_interview_question(db: Session, interview_question_id: int):
+    db_iq = db.query(InterviewQuestion).options(
+        joinedload(InterviewQuestion.question_model)).filter(InterviewQuestion.id == interview_question_id)
+    print(db_iq)
+    iq = list(db_iq)[0]
+    print(iq)
+    print(iq.question_model.title)
+    return iq.question_model.title
+
+
+def update_interview_question(db: Session, iq_id: int, answer: str, gpt_answer: str, gpt_additional: str):
+    gpt_additional = json.loads(gpt_additional.replace("'", "\""))
+    print(gpt_additional)
+    a = db.query(InterviewQuestion).filter_by(id=iq_id).update({
+        "answer": answer,
+        "gpt_answer": gpt_answer,
+        "additional_question_1": gpt_additional['question_1'],
+        "additional_question_2": gpt_additional['question_2'],
+        "additional_question_3": gpt_additional['question_3']
+    })
+    db.commit()
+    print(a)
