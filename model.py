@@ -29,7 +29,7 @@ class Inteverview(Base):
     interview_account = relationship("Account", backref="interview_account")
 
 
-class IQ(Base):
+class InterviewQuestion(Base):
     __tablename__ = "interview_question"
     id = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
     interview = Column(BigInteger, ForeignKey("interview.id"))
@@ -42,5 +42,5 @@ class IQ(Base):
     additional_answer_2 = Column(String)
     additional_question_3 = Column(String)
     additional_answer_3 = Column(String)
-    # interview_model = relationship("Interview", backref="interview_model")
+    # interview_model = relationship("Interview", backref="interviewquestion_interview")
     question_model = relationship("Question", backref="question_model")

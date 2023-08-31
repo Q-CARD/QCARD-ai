@@ -1,11 +1,10 @@
-from fastapi import FastAPI, Depends, Body, status, Header
+from fastapi import FastAPI, Depends, Header
 from starlette.middleware.cors import CORSMiddleware
 import database
 from scheme import InterviewStartReq
 from sqlalchemy.orm import Session
 from util import jwt_util
 import crud
-import json
 
 app = FastAPI()
 app.add_middleware(
@@ -31,13 +30,26 @@ async def root():
 
 
 @app.post("/interview/start")
-async def start_interview(Authorization: str | None = Header(default=None), db: Session = Depends(get_db)):
-    email = jwt_util.decode_jwt(access_token=Authorization)
-    account = crud.find_account_by_email(db=db, email=email)
-    return ""
+async def start_interview(req: InterviewStartReq, Authorization: str | None = Header(default=None),
+                          db: Session = Depends(get_db)):
+    account = crud.find_account_by_email(db=db, email=jwt_util.decode_jwt(access_token=Authorization))
+    print(account.id)
+    questions = []
+    if len(req.categories) < 1:
+        questions = crud.find_all_question(db=db)
+    else:
+        questions = crud.find_question_by_categories(db=db, categories=req.categories)
+    interview, interview_question = crud.create_interview(db=db, account=account, questions=questions, categories=req.categories)
+    return {
+        "interview_id": interview.id,
+        "account": {
+            "id": account.id,
+            "name": account.name,
+            "email": account.email
+        },
+        "question": crud.find_interview_questions(db=db, interview_questions=interview_question)
+    }
 
-
-# , req: InterviewStartReq, db: Session = Depends(get_db)
 
 @app.post("/interview/answer")
 async def answer_interview():
