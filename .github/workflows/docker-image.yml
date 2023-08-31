@@ -10,14 +10,9 @@ jobs:
     steps:
 
     - name: create .env file at root
-      run: touch .env
-          && echo "${{secrets.ENV}}" > ./.env
-
-    - name: upload .env file at root
-      uses: actions/upload-artifact@v2
-      with:
-        name: .env
-        path: ./.env
+      run: |
+          touch .env
+          echo "${{secrets.ENV}}" >> .env
 
     - uses: actions/checkout@v3
     - name: Build the Docker image
