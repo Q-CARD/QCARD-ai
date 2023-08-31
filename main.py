@@ -33,7 +33,6 @@ async def root():
 async def start_interview(req: InterviewStartReq, Authorization: str | None = Header(default=None),
                           db: Session = Depends(get_db)):
     account = crud.find_account_by_email(db=db, email=jwt_util.decode_jwt(access_token=Authorization))
-    print(account.id)
     questions = []
     if len(req.categories) < 1:
         questions = crud.find_all_question(db=db)
