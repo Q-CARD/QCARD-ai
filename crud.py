@@ -89,7 +89,6 @@ def find_question_by_interview_question(db: Session, interview_question_id: int)
 
 def update_interview_question(db: Session, iq_id: int, answer: str, gpt_answer: str, gpt_additional: str):
     gpt_additional = json.loads(gpt_additional.replace("'", "\""))
-    print(gpt_additional)
     a = db.query(InterviewQuestion).filter_by(id=iq_id).update({
         "answer": answer,
         "gpt_answer": gpt_answer,
@@ -98,4 +97,3 @@ def update_interview_question(db: Session, iq_id: int, answer: str, gpt_answer: 
         "additional_question_3": gpt_additional['question_3']
     })
     db.commit()
-    print(a)

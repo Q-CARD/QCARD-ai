@@ -72,19 +72,16 @@ async def answer_interview(question_id: int, file: UploadFile, Authorization: st
 
     # Whisper-api 호출
     answer = whisper_util.translate_answer_audio(file=upload_name)
-    print(answer)
 
     question = crud.find_question_by_interview_question(db=db, interview_question_id=question_id)
-    print(question)
 
     # GPT-api 호출 - 첨삭 답변
     gpt_answer = gpt_util.get_gpt_answer(prompt=answer, question=question)
-    print(gpt_answer)
 
     # GPT-api 호출 - 추가 질문
     gpt_additional = gpt_util.get_gpt_questions(question=question, answer=answer)
-    print(gpt_additional)
 
+    # 전체 응답 저장
     crud.update_interview_question(db=db, iq_id=question_id, answer=answer, gpt_answer=gpt_answer, gpt_additional=gpt_additional)
 
     return {
