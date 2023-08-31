@@ -17,6 +17,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.redirect_slashes = False
 
 UPLOAD_DIR = "/tmp"
 
@@ -115,6 +116,6 @@ async def answer_interview_additional(req: AdditionalInterviewReq, Authorization
     }
 
 
-@app.get("/interview/")
+@app.get("/interview")
 async def get_interviw_question_by_pk(id: int, db: Session = Depends(get_db)):
     return crud.find_interview_question_by_pk(db=db, iq_id=id)

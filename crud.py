@@ -72,7 +72,7 @@ def find_interview_questions(db: Session, interview_questions: list):
     for i in range(len(interview_questions)):
         db_interview_question = db.query(InterviewQuestion).options(
             joinedload(InterviewQuestion.question_model)).filter(
-            InterviewQuestion.question == interview_questions[i].question)
+            InterviewQuestion.id == interview_questions[i].id)
         res.append(list(db_interview_question)[0])
     return res
 
@@ -80,10 +80,7 @@ def find_interview_questions(db: Session, interview_questions: list):
 def find_question_by_interview_question(db: Session, interview_question_id: int):
     db_iq = db.query(InterviewQuestion).options(
         joinedload(InterviewQuestion.question_model)).filter(InterviewQuestion.id == interview_question_id)
-    print(db_iq)
     iq = list(db_iq)[0]
-    print(iq)
-    print(iq.question_model.title)
     return iq.question_model.title
 
 
