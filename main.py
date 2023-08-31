@@ -101,7 +101,7 @@ async def get_interview_result(interview_id: int, Authorization: str | None = He
 
 @app.put("/interview/additional")
 async def answer_interview_additional(req: AdditionalInterviewReq, Authorization: str | None = Header(default=None),
-                           db: Session = Depends(get_db)):
+                                      db: Session = Depends(get_db)):
     crud.update_interview_question_additional_answer(
         db=db,
         sequence=req.sequence,
@@ -114,3 +114,7 @@ async def answer_interview_additional(req: AdditionalInterviewReq, Authorization
         "message": "성공적으로 저장됨."
     }
 
+
+@app.get("/interview/")
+async def get_interviw_question_by_pk(id: int, db: Session = Depends(get_db)):
+    return crud.find_interview_question_by_pk(db=db, iq_id=id)

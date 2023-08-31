@@ -117,3 +117,8 @@ def update_interview_question_additional_answer(db: Session, sequence: int, ques
         target: answer
     })
     db.commit()
+
+
+def find_interview_question_by_pk(db, iq_id: int):
+    return list(db.query(InterviewQuestion).options(
+        joinedload(InterviewQuestion.question_model)).filter(InterviewQuestion.id == iq_id))[0]
