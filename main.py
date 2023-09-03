@@ -12,7 +12,7 @@ import crud
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -116,6 +116,6 @@ async def answer_interview_additional(req: AdditionalInterviewReq, Authorization
     }
 
 
-@app.get("/interview")
+@app.get("/interview/all/{id}")
 async def get_interviw_question_by_pk(id: int, db: Session = Depends(get_db)):
     return crud.find_interview_question_by_pk(db=db, iq_id=id)

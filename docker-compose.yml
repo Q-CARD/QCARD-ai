@@ -4,7 +4,7 @@ services:
   nginx:
     image: nginx
     ports:
-      - "80:8000"
+      - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
@@ -33,6 +33,42 @@ services:
         - LIBGL_PATH=/usr/lib/x86_64-linux-gnu/libGL.so.1
     ports:
       - "8002:8000"
+
+    networks:
+      - my_network
+
+  fastapi3:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - LIBGL_PATH=/usr/lib/x86_64-linux-gnu/libGL.so.1
+    ports:
+      - "8003:8000"
+
+    networks:
+      - my_network
+
+  fastapi4:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - LIBGL_PATH=/usr/lib/x86_64-linux-gnu/libGL.so.1
+    ports:
+      - "8004:8000"
+
+    networks:
+      - my_network
+
+  fastapi5:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - LIBGL_PATH=/usr/lib/x86_64-linux-gnu/libGL.so.1
+    ports:
+      - "8005:8000"
 
     networks:
       - my_network
