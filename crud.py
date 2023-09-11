@@ -28,15 +28,25 @@ def find_question_by_id(db: Session, question_id: int):
 
 
 def find_question_by_categories(db: Session, categories: list):
+    db_questions = None
     if len(categories) == 1:
-        categories.append(None)
-        categories.append(None)
+        db_questions = db.query(Question).filter(
+            categories[0] == Question.category
+        )
     elif len(categories) == 2:
-        categories.append(None)
+        db_questions = db.query(Question).filter(or_(
+            categories[0] == Question.category, categories[1] == Question.category
+        ))
+    elif len(categories) == 3:
+        db_questions = db.query(Question).filter(or_(
+            categories[0] == Question.category, categories[1] == Question.category, categories[2] == Question.category))
+    else:
+        db_questions = db.query(Question)
 
-    db_questions = db.query(Question).filter(or_(
-        categories[0] == Question.category, categories[1] == Question.category, categories[2] == Question.category))
-    return random.sample(list(db_questions), 10)
+    if len(list(db_questions)) >= 10:
+        return random.sample(list(db_questions), 10)
+    else:
+        return list(db_questions)
 
 
 # interview
