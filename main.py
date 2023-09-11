@@ -120,4 +120,10 @@ async def get_interviw_question_by_pk(id: int, db: Session = Depends(get_db)):
 # 배포금지
 @app.put("/gpt/question")
 async def modify_gpt_question(db: Session = Depends(get_db)):
+    crud.delete_gpt_answers(db)
     questions = crud.find_all_question(db=db)
+    for q in questions:
+        answer = gpt_util.get_gpt_answer_static(question=q)
+        print(q.title)
+        print(answer)
+        crud.update_question_gpt_answer(db=db, db_question=q, gpt_answer=answer)
