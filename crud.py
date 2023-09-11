@@ -5,7 +5,7 @@ from sqlalchemy import or_
 
 import scheme
 from sqlalchemy.orm import Session, joinedload
-from model import Account, Question, InterviewQuestion, Inteverview
+from model import Account, Question, InterviewQuestion, Inteverview, Answer
 import random
 
 
@@ -20,7 +20,7 @@ def find_account_by_email(db: Session, email):
 # question
 def find_all_question(db: Session):
     db_questions = db.query(Question).all()
-    return random.sample(db_questions, 10)
+    return list(db_questions)
 
 
 def find_question_by_id(db: Session, question_id: int):
@@ -28,15 +28,25 @@ def find_question_by_id(db: Session, question_id: int):
 
 
 def find_question_by_categories(db: Session, categories: list):
+    db_questions = None
     if len(categories) == 1:
-        categories.append(None)
-        categories.append(None)
+        db_questions = db.query(Question).filter(
+            categories[0] == Question.category
+        )
     elif len(categories) == 2:
-        categories.append(None)
+        db_questions = db.query(Question).filter(or_(
+            categories[0] == Question.category, categories[1] == Question.category
+        ))
+    elif len(categories) == 3:
+        db_questions = db.query(Question).filter(or_(
+            categories[0] == Question.category, categories[1] == Question.category, categories[2] == Question.category))
+    else:
+        db_questions = db.query(Question)
 
-    db_questions = db.query(Question).filter(or_(
-        categories[0] == Question.category, categories[1] == Question.category, categories[2] == Question.category))
-    return random.sample(list(db_questions), 10)
+    if len(list(db_questions)) >= 10:
+        return random.sample(list(db_questions), 10)
+    else:
+        return list(db_questions)
 
 
 # interview
@@ -113,6 +123,23 @@ def update_interview_question_additional_answer(db: Session, sequence: int, ques
     db.query(InterviewQuestion).filter_by(id=question_id).update({
         target: answer
     })
+    db.commit()
+
+
+def update_question_gpt_answer(db: Session, db_question, gpt_answer):
+    answer = Answer(
+        question=db_question.id,
+        content=gpt_answer,
+        type="TYPE_GPT"
+    )
+    db.add(answer)
+    db.commit()
+    db.refresh(answer)
+
+def delete_gpt_answers(db: Session):
+    db.query(Answer).filter(
+        Answer.type == "TYPE_GPT"
+    ).delete()
     db.commit()
 
 

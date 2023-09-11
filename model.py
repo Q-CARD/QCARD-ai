@@ -18,6 +18,14 @@ class Question(Base):
     category = Column(String)
 
 
+class Answer(Base):
+    __tablename__ = "answer"
+    id = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
+    question = Column(BigInteger, ForeignKey("question.id"))
+    content = Column(String)
+    type = Column(String)
+
+
 class Inteverview(Base):
     __tablename__ = "interview"
     id = Column(BigInteger, primary_key=True, index=True, autoincrement=True)

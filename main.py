@@ -39,11 +39,7 @@ async def root():
 async def start_interview(req: InterviewStartReq, Authorization: str | None = Header(default=None),
                           db: Session = Depends(get_db)):
     account = crud.find_account_by_email(db=db, email=jwt_util.decode_jwt(access_token=Authorization))
-    questions = []
-    if len(req.categories) < 1:
-        questions = crud.find_all_question(db=db)
-    else:
-        questions = crud.find_question_by_categories(db=db, categories=req.categories)
+    questions = crud.find_question_by_categories(db=db, categories=req.categories)
     interview, interview_question = crud.create_interview(db=db, account=account, questions=questions,
                                                           categories=req.categories)
     return {
@@ -119,3 +115,15 @@ async def answer_interview_additional(req: AdditionalInterviewReq, Authorization
 @app.get("/interview/all/{id}")
 async def get_interviw_question_by_pk(id: int, db: Session = Depends(get_db)):
     return crud.find_interview_question_by_pk(db=db, iq_id=id)
+
+
+# 배포금지
+@app.put("/gpt/question")
+async def modify_gpt_question(db: Session = Depends(get_db)):
+    crud.delete_gpt_answers(db)
+    questions = crud.find_all_question(db=db)
+    for q in questions:
+        answer = gpt_util.get_gpt_answer_static(question=q)
+        print(q.title)
+        print(answer)
+        crud.update_question_gpt_answer(db=db, db_question=q, gpt_answer=answer)
