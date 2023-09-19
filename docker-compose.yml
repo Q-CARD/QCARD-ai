@@ -10,6 +10,9 @@ services:
     depends_on:
       - fastapi1
       - fastapi2
+      - fastapi3
+      - fastapi4
+      - fastapi5
     networks:
       - my_network
 
