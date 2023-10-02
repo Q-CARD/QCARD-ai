@@ -8,7 +8,12 @@ load_dotenv()
 SQLALCHEMY_DATABASE_URL = os.environ.get("DB_URL")
 
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL
+    SQLALCHEMY_DATABASE_URL,
+    pool_recycle=500,
+    pool_size=5,
+    max_overflow=20,
+    echo=False,
+    echo_pool=True
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
