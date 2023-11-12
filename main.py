@@ -1,5 +1,6 @@
 import os
 import shutil
+from json import loads
 
 from fastapi import FastAPI, Depends, Header, UploadFile
 from starlette.middleware.cors import CORSMiddleware
@@ -7,6 +8,8 @@ import database
 from scheme import InterviewStartReq, AdditionalInterviewReq
 from sqlalchemy.orm import Session
 from util import jwt_util, gpt_util, whisper_util
+
+
 import crud
 
 app = FastAPI()
@@ -20,7 +23,6 @@ app.add_middleware(
 app.redirect_slashes = False
 
 UPLOAD_DIR = "/tmp"
-
 
 def get_db():
     db = database.SessionLocal()
