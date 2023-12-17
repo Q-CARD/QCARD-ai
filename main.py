@@ -2,13 +2,14 @@ import os
 import shutil
 from json import loads
 
-from fastapi import FastAPI, Depends, Header, UploadFile
+from fastapi import FastAPI, WebSocket, Depends, Header, UploadFile, File, HTTPException, WebSocketDisconnect
 from starlette.middleware.cors import CORSMiddleware
 import database
 from scheme import InterviewStartReq, AdditionalInterviewReq
 from sqlalchemy.orm import Session
 from util import jwt_util, gpt_util, whisper_util
-
+import base64
+from io import BytesIO
 
 import crud
 
@@ -23,6 +24,26 @@ app.add_middleware(
 app.redirect_slashes = False
 
 UPLOAD_DIR = "/tmp"
+
+
+class WebSocketManager:
+    def __init__(self):
+        self.connections = set()
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.connections.add(websocket)
+
+    async def disconnect(self, websocket: WebSocket):
+        self.connections.remove(websocket)
+
+    async def broadcast(self, message: str):
+        for connection in self.connections:
+            await connection.send_text(message)
+
+
+manager = WebSocketManager()
+
 
 def get_db():
     db = database.SessionLocal()
@@ -129,3 +150,40 @@ async def modify_gpt_question(db: Session = Depends(get_db)):
         print(q.title)
         print(answer)
         crud.update_question_gpt_answer(db=db, db_question=q, gpt_answer=answer)
+
+
+class BytesIOWithFilename(BytesIO):
+    def __init__(self, initial_bytes=b"", filename=None):
+        super().__init__(initial_bytes)
+        self.name = filename
+
+
+@app.websocket("/ws/interview/{question_id}")
+async def websocket_endpoint(websocket: WebSocket, question_id: int, Authorization: str | None = Header(default=None),
+                             db: Session = Depends(get_db)):
+    await manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            binary_data = base64.b64decode(data)
+            file_like = BytesIOWithFilename(binary_data, "answer.mp3")
+            answer = whisper_util.translate_answer_audio_socket(file_like)
+            print(answer)
+
+            question = crud.find_question_by_interview_question(db=db, interview_question_id=question_id)
+
+            # GPT-api 호출 - 첨삭 답변
+            gpt_answer = gpt_util.get_gpt_answer(prompt=answer, question=question)
+
+            # GPT-api 호출 - 추가 질문
+            gpt_additional = gpt_util.get_gpt_questions(question=question, answer=answer)
+
+            # 전체 응답 저장
+            crud.update_interview_question(db=db, iq_id=question_id, answer=answer, gpt_answer=gpt_answer,
+                                           gpt_additional=gpt_additional)
+
+            await manager.broadcast(answer)
+    except Exception as e:
+        print(e)
+    finally:
+        await manager.disconnect(websocket)

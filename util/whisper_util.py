@@ -12,3 +12,9 @@ def translate_answer_audio(file):
     transcript = openai.Audio.transcribe("whisper-1", audio_file)
     text = transcript['text']
     return text
+
+
+def translate_answer_audio_socket(file):
+    transcript = openai.Audio.transcribe("whisper-1", file)
+    text = transcript['text']
+    return text
