@@ -158,17 +158,24 @@ class BytesIOWithFilename(BytesIO):
         self.name = filename
 
 
+@app.websocket("/ws/connect/{interview_id}")
+async def websocket_connect(websocket: WebSocket, interview_id: int):
+    await manager.connect(websocket)
+
+
+@app.websocket("/ws/disconnect/{interview_id}")
+async def websocket_disconnect(websocket: WebSocket, interview_id: int):
+    await manager.disconnect(websocket)
+
 @app.websocket("/ws/interview/{question_id}")
 async def websocket_endpoint(websocket: WebSocket, question_id: int, Authorization: str | None = Header(default=None),
                              db: Session = Depends(get_db)):
-    await manager.connect(websocket)
     try:
         while True:
             data = await websocket.receive_text()
             binary_data = base64.b64decode(data)
             file_like = BytesIOWithFilename(binary_data, "answer.mp3")
             answer = whisper_util.translate_answer_audio_socket(file_like)
-            print(answer)
 
             question = crud.find_question_by_interview_question(db=db, interview_question_id=question_id)
 
@@ -185,5 +192,5 @@ async def websocket_endpoint(websocket: WebSocket, question_id: int, Authorizati
             await manager.broadcast(answer)
     except Exception as e:
         print(e)
-    finally:
-        await manager.disconnect(websocket)
+
+

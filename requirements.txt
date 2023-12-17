@@ -11,3 +11,5 @@ uvicorn==0.22.0
 bcrypt
 python-multipart
 websockets
+base64
+BytesIO
