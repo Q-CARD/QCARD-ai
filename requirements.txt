@@ -10,3 +10,4 @@ SQLAlchemy==2.0.12
 uvicorn==0.22.0
 bcrypt
 python-multipart
+websockets
