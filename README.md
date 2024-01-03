@@ -7,4 +7,4 @@ uvicorn main:app --reload
 
 ```bash
 gunicorn main:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --access-logfile ./log.log
-```
+```ㄹ
