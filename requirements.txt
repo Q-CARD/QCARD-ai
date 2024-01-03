@@ -13,3 +13,4 @@ python-multipart
 websockets
 base64
 BytesIO
+gunicorn
