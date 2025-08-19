@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
 
-from pydantic.decorator import List
+from typing import List
 
 
 class InterviewStartReq(BaseModel):
